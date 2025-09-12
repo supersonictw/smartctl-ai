@@ -28,8 +28,15 @@ const inspectPrompt =
         "CRITICAL: Output must be pure plain text only. NEVER use asterisks (*), underscores (_), backticks (`), hash symbols (#), or any markdown formatting. Use only regular text with basic punctuation.\n") +
     (isColorTerminal ? "Make response in terminal style with colors if possible.\n" : "");
 const inspect = async (device) => {
-    const smartctlOutput = execSync(`smartctl -a "${device}"`).toString();
+    let smartctlResult;
 
+    try {
+        smartctlResult = execSync(`smartctl -a "${device}"`);
+    } catch (e) {
+        smartctlResult = e.stdout;
+    }
+
+    const smartctlOutput = smartctlResult.toString();
     const snippets = sliceContent(smartctlOutput, 2000, "\n");
     for (const snippet of snippets) {
         chatHistory.push({
