@@ -18,12 +18,14 @@ const devicePaths = stdOut.toString().trim().split("\n").map(line => {
 const chatHistory = [];
 const chatModel = process.env.CHAT_MODEL || "gemini-2.0-flash";
 const chatLanguage = process.env.CHAT_LANGUAGE || "zh-TW";
-const isColorTerminal = !process.env.NO_COLOR;
+const isSendEmail = !!process.env.SEND_EMAIL;
+const isColorTerminal = !process.env.NO_COLOR && !process.env.SEND_EMAIL;
 
 const inspectPrompt =
     `Analyze the following SMART data and provide insights or potential issues in ${chatLanguage}.\n` +
-    "No markdown present, please use plain text instead.\n" +
-    (isColorTerminal && "Make response in terminal style with colors if possible.");
+    "IMPORTANT: Output must be pure plain text only. Do not use any markdown formatting, special characters, or markup syntax.\n" +
+    (isSendEmail ? "Make response suitable for email format.\n" : "") +
+    (isColorTerminal ? "Make response in terminal style with colors if possible.\n" : "");
 const inspect = async (device) => {
     const smartctlOutput = execSync(`smartctl -a "${device}"`).toString();
 
