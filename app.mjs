@@ -23,8 +23,9 @@ const isColorTerminal = !process.env.NO_COLOR && !process.env.SEND_EMAIL;
 
 const inspectPrompt =
     `Analyze the following SMART data and provide insights or potential issues in ${chatLanguage}.\n` +
-    "IMPORTANT: Output must be pure plain text only. Do not use any markdown formatting, special characters, or markup syntax.\n" +
-    (isSendEmail ? "Make response suitable for email format.\n" : "") +
+    (isSendEmail ? 
+        "Output in plain text format suitable for email. You may use basic text formatting like line breaks, spacing, and simple symbols for structure.\n" :
+        "IMPORTANT: Output must be pure plain text only. Do not use any markdown formatting, special characters, or markup syntax.\n") +
     (isColorTerminal ? "Make response in terminal style with colors if possible.\n" : "");
 const inspect = async (device) => {
     const smartctlOutput = execSync(`smartctl -a "${device}"`).toString();
