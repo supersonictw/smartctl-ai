@@ -5,12 +5,10 @@
 # source send_to.sh && SEND_SMART_EMAIL -s "Custom Subject" recipient@example.com
 # source send_to.sh && SEND_SMART_EMAIL -c cc1@example.com -c cc2@example.com -b bcc@example.com recipient1@example.com recipient2@example.com
 
-SEND_SMART_EMAIL() {
-    local SEND_EMAIL=1
-    
-    # If no arguments provided, use default email
+SEND_SMART_EMAIL() {    
+    # If no arguments provided, show the error and return
     if [ $# -eq 0 ]; then
-        node app.mjs | mailx -s "SMARTctl AI - $HOSTNAME" "your_email_address@example.org"
+        echo "No email address provided. Please provide at least one recipient email address."
         return
     fi
     
@@ -20,5 +18,5 @@ SEND_SMART_EMAIL() {
     fi
     
     # Execute with all provided arguments
-    node app.mjs | mailx "$@"
+    SEND_EMAIL=1 node app.mjs | mailx "$@"
 }
