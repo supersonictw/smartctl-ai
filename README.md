@@ -68,6 +68,12 @@ Then add to your crontab:
 0 5 * * 1 /usr/local/bin/send_smart_email.sh
 ```
 
+> **Note:**
+> After creating your script (e.g., `/usr/local/bin/send_smart_email.sh`), don't forget to make it executable:
+> ```sh
+> chmod +x /usr/local/bin/send_smart_email.sh
+> ```
+
 ## Main Files
 - `app.mjs`: Main program, calls smartctl and AI analysis
 - `chat.mjs`: AI chat and API integration
