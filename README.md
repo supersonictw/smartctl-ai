@@ -1,7 +1,6 @@
 # SMARTctl AI
 
 ```sh
-SEND_EMAIL=1 node app.mjs | \
-    mailx -s "SMARTctl AI - $HOSTNAME" \
-    "your_email_address@example.org"
+source send_to.sh
+SEND_SMART_EMAIL recipient@example.com
 ```
