@@ -2,6 +2,12 @@
 // SPDX-License-Identifier: MIT
 // https://github.com/ai-tech-tw/ironnect
 
+// Load configuration from environment variables or use default values
+const aiBaseUrl = process.env.OPENAI_BASE_URL ||
+    "https://web-tech.tw/recv/openai/v1";
+const aiApiKey = process.env.OPENAI_API_KEY ||
+    "gemini zr3Pjc68z4bOtw==";
+
 /**
  * Randomly choose an element from an array.
  * @param {Array<object>} choices The array of choices.
@@ -19,14 +25,12 @@ export function choose(choices) {
  * @return {Promise<object>} The response from the AI.
  */
 export async function createChatCompletions(args) {
-    const baseUrl = "https://web-tech.tw/recv/openai/v1";
-    const accessToken = "gemini zr3Pjc68z4bOtw==";
-    const requestUrl = `${baseUrl}/chat/completions`;
+    const requestUrl = `${aiBaseUrl}/chat/completions`;
     const response = await fetch(requestUrl, {
         method: "POST",
         headers: {
             "content-type": "application/json",
-            "authorization": `Bearer ${accessToken}`,
+            "authorization": `Bearer ${aiApiKey}`,
         },
         body: JSON.stringify(args),
     });
