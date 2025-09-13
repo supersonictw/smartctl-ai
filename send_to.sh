@@ -14,7 +14,7 @@ SEND_SMART_EMAIL() {
     
     # If arguments don't contain -s (subject), add default subject
     if ! echo "$*" | grep -q "\-s"; then
-        set -- -s "SMARTctl AI - $HOSTNAME" "$@"
+        set -- -s "SMARTctl AI - $(hostname)" "$@"
     fi
     
     # Execute with all provided arguments
