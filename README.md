@@ -35,18 +35,37 @@ SEND_SMART_EMAIL -s "Custom Subject" recipient1@example.com recipient2@example.c
 - You can freely pass any parameters supported by mailx
 - If `-s` (subject) is not specified, a default subject will be added automatically
 
-### 3. Example crontab
-```crontab
-0 5 * * 1 /usr/local/bin/send_smart_email.sh
-```
-
-### 4. Advanced customization
+### 3. Advanced customization
 You can customize AI parameters via environment variables:
 ```sh
 export CHAT_MODEL=gemini-2.0-flash
 export CHAT_LANGUAGE=zh-TW
 export OPENAI_BASE_URL=...
 export OPENAI_API_KEY=...
+```
+
+### 4. Example: Full crontab Script
+
+You can create a script (e.g., `/usr/local/bin/send_smart_email.sh`) for use with crontab:
+
+```sh
+#!/bin/sh
+
+# Source the send_to.sh
+. /opt/smartctl-ai/send_to.sh
+
+# Change working directory
+cd /opt/smartctl-ai
+
+# Start the task
+SEND_SMART_EMAIL \
+  "recipient@example.com"
+```
+
+Then add to your crontab:
+
+```crontab
+0 5 * * 1 /usr/local/bin/send_smart_email.sh
 ```
 
 ## Main Files
