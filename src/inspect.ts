@@ -7,12 +7,18 @@ import {
     type ChatMessage,
 } from "./chat.ts";
 
+import {
+    formatInspectReport,
+    parseInspectReport,
+} from "./report.ts";
+
 const execAsync = promisify(exec);
 
 // Define the inspect method
 export interface InspectParams {
     devicePath: string;
     chatModel: string;
+    chatLanguage?: string;
     systemMessage: ChatMessage;
     userMessage: ChatMessage;
 }
@@ -42,11 +48,16 @@ export const inspect = async (params: InspectParams): Promise<InspectResult> => 
         })),
     ];
 
-    const reply = await chatWithAI(
+    const rawReply = await chatWithAI(
         chatHistory,
         params.chatModel,
         params.userMessage,
     );
+
+    const parsedReport = parseInspectReport(rawReply);
+    const reply = parsedReport
+        ? formatInspectReport(parsedReport, params.chatLanguage)
+        : rawReply;
 
     return {
         smartctlOutput,

@@ -79,7 +79,7 @@ const replyMessages: string[] = [];
             console.info(`Starting inspection for device ${devicePath}...`);
             const {
                 reply, smartctlOutput,
-            } = await inspect({devicePath, chatModel, systemMessage, userMessage});
+            } = await inspect({devicePath, chatModel, chatLanguage, systemMessage, userMessage});
             replyMessages.push(`Inspection report for device ${devicePath}:\n`, reply);
             smartHistory.push(smartctlOutput);
             console.info(`Inspection completed for device ${devicePath}.`);

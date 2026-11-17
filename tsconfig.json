@@ -18,8 +18,10 @@
   "include": [
     "*.ts",
     "src/chat.ts",
+    "src/inspect.ts",
     "src/mailer.ts",
-    "src/prompts.ts"
+    "src/prompts.ts",
+    "src/report.ts"
   ],
   "exclude": [
     "node_modules"

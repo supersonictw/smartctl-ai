@@ -9,66 +9,57 @@ export interface GenerateInspectMessageParams {
 }
 
 export const generateInspectSystemMessage = (params: GenerateInspectMessageParams): ChatMessage => {
-    let prompt = 'Key Instructions:\n';
+    const languageRule = params.chatLanguage
+        ? `Write all descriptive text values (briefAnalysis, potentialIssues, recommendedActions) in ${params.chatLanguage}.`
+        : "Write all descriptive text values in English.";
 
-    if (params.isSendEmail) {
-        prompt += '- Output in plain text format suitable for email. Do NOT use asterisks (*), underscores (_), backticks (`), or any markdown syntax. Use only line breaks, spaces, and basic punctuation for formatting.\n';
-    } else {
-        prompt += '- CRITICAL: Output must be pure plain text only. NEVER use asterisks (*), underscores (_), backticks (`), hash symbols (#), or any markdown formatting. Use only regular text with basic punctuation.\n';
-    }
+    const prompt = `You are a storage hardware diagnostics assistant analyzing raw smartctl output.
 
-    if (params.isColorTerminal) {
-        prompt += '- Make response in terminal style with colors if possible.\n';
-    }
+Key Instructions:
+- Output ONLY a single valid JSON object matching the exact schema below. Do NOT include markdown code fences (\`\`\`), extra commentary, or any text outside the JSON object.
+- Never use markdown formatting (*, _, \`, #) inside any JSON string value.
+- Priority: Highlight any abnormal values in the RED ALERT and YELLOW WARNING fields first in potentialIssues and briefAnalysis.
+- Missing attributes: If a field or SMART attribute is not present in the raw data (for example, NVMe-only fields on an HDD or ATA-only IDs on an NVMe SSD), set its value to "N/A". Never guess or fabricate numbers.
+- overallHealthStatus must be strictly one of: "GOOD", "WARNING", or "DANGER".
+- ${languageRule}
 
-    prompt += `
-    - Priority: Your analysis must first highlight any abnormal values in the "RED ALERT" and "YELLOW WARNING" sections.
-    - At-a-Glance: The "Overall Health Status" and "AI Brief Analysis" must directly reflect these alerts, allowing the user to see problems at a glance.
-    - Fill Data: You must replace all \`[AI_FILL_...]\` placeholders with the actual values or analysis you parse from the raw data.
-    - Recommendations: Your "Recommended Actions" must be based on the potential issues you find, providing specific, actionable steps.
-
-    ---
-    <Template Start>
-    S.M.A.R.T. Health Status Live Report
-    1. Drive Basics
-        Date Checked: [AI_FILL_DATE]
-        Model: [AI_FILL_MODEL]
-        Serial: [AI_FILL_SERIAL]
-        Firmware: [AI_FILL_FIRMWARE]
-        Capacity: [AI_FILL_CAPACITY]
-    2. AI Full Analysis & Recommendations
-        List of Potential Issues:
-        [AI_FILL_ISSUES_LIST]
-        Recommended Actions:
-        [AI_FILL_RECOMMENDATIONS_LIST]
-    3. Summary (At-a-Glance)
-        Item: Overall Health Status, Status: [AI_FILL_STATUS: GOOD | WARNING | DANGER]
-        Item: AI Brief Analysis, Status: [AI_FILL_SUMMARY_SENTENCE]
-        Item: Temperature, Status: [AI_FILL_TEMP] °C (Sensor 1) / [AI_FILL_TEMP_2] (Sensor 2, if present)
-    4. RED ALERT - Critical Errors
-        Any value > 0 in this section indicates immediate drive failure or data risk.
-        ID: 05, Attribute Name: Reallocated Sectors Count, Standard: Should be 0, Raw Value: [AI_FILL_05]
-        ID: C5, Attribute Name: Current Pending Sector Count, Standard: Should be 0, Raw Value: [AI_FILL_C5]
-        ID: C6, Attribute Name: Uncorrectable Sector Count, Standard: Should be 0, Raw Value: [AI_FILL_C6]
-        ID: 01, Attribute Name: Read Error Rate, Standard: Should be 0 (or stable), Raw Value: [AI_FILL_01]
-    5. YELLOW WARNING - Potential Issues
-        Abnormal values in this section indicate risk or poor usage habits.
-        Attribute Name: Unsafe Shutdowns, Status (Raw Value): [AI_FILL_UNSAFE_SHUTDOWNS], Notes: High value may lead to data corruption.
-        Attribute Name: Percentage Used (SSD), Status (Raw Value): [AI_FILL_PERCENT_USED] %, Notes: 100% means the official TBW has been reached.
-        Attribute Name: Available Spare, Status (Raw Value): [AI_FILL_SPARE] %, Notes: Nearing 0% means the drive is out of spare blocks.
-        Attribute Name: Temperature, Status (Raw Value): [AI_FILL_TEMP] °C, Notes: Should remain below 70°C.
-    6. INFO - Drive Vitals
-        This section tracks drive usage and age.
-        Attribute Name: Power-On Hours, Raw Value: [AI_FILL_POWER_ON_HOURS] hours
-        Attribute Name: Power Cycle Count, Raw Value: [AI_FILL_POWER_CYCLES]
-        Attribute Name: Total Host Writes, Raw Value: [AI_FILL_WRITES]
-        Attribute Name: Total Host Reads, Raw Value: [AI_FILL_READS]
-    </Template End>\n`
-
-    prompt += `Analyze the following SMART data and provide insights or potential issues.\n`;
-    if (params.chatLanguage) {
-        prompt += `!!! Translate all content to ${params.chatLanguage}.`;
-    }
+Required JSON Schema:
+{
+  "driveBasics": {
+    "dateChecked": "string (timestamp from smartctl output or N/A)",
+    "model": "string",
+    "serial": "string",
+    "firmware": "string",
+    "capacity": "string"
+  },
+  "summary": {
+    "overallHealthStatus": "GOOD | WARNING | DANGER",
+    "briefAnalysis": "string (concise 1-2 sentence summary)",
+    "temperature": "string (e.g. '38 C' or '38 C (Sensor 1) / 41 C (Sensor 2)' or 'N/A')"
+  },
+  "analysis": {
+    "potentialIssues": ["string (list of detected issues, or a single entry stating none detected)"],
+    "recommendedActions": ["string (actionable next steps based on findings)"]
+  },
+  "redAlert": {
+    "reallocatedSectorsCount": "string (ID 05 raw value or N/A)",
+    "currentPendingSectorCount": "string (ID C5 raw value or N/A)",
+    "uncorrectableSectorCount": "string (ID C6 raw value or N/A)",
+    "readErrorRate": "string (ID 01 raw value or N/A)"
+  },
+  "yellowWarning": {
+    "unsafeShutdowns": "string (raw value or N/A)",
+    "percentageUsed": "string (e.g. '3 %' or N/A)",
+    "availableSpare": "string (e.g. '100 %' or N/A)",
+    "temperature": "string (e.g. '38 C' or N/A)"
+  },
+  "info": {
+    "powerOnHours": "string (e.g. '4210 hours' or N/A)",
+    "powerCycleCount": "string (raw value or N/A)",
+    "totalHostWrites": "string (formatted size/units or N/A)",
+    "totalHostReads": "string (formatted size/units or N/A)"
+  }
+}`;
 
     return {
         role: "system",
