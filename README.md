@@ -28,6 +28,7 @@ SMARTctl AI is an AI-powered SMART disk health monitoring tool that automaticall
 
 - `CHAT_MODEL`: AI model (default: gemini-2.0-flash)
 - `CHAT_LANGUAGE`: AI response language (default: zh-TW)
+- `CHAT_MODEL_PARAMS`: Optional JSON object of extra model parameters, e.g. `{"max_tokens":4096}` (default: unset)
 - `OPENAI_BASE_URL`: OpenAI API endpoint (default provided)
 - `OPENAI_API_KEY`: OpenAI API key (default provided)
 
@@ -40,6 +41,8 @@ SMARTctl AI is an AI-powered SMART disk health monitoring tool that automaticall
 - `SEND_EMAIL`: Enable email sending (default: false)
 - `SEND_EMAIL_FROM`: Sender address (default: "SMARTctl-AI <noreply-smartctl-ai@localhost>")
 - `SEND_EMAIL_TO`: Recipient address (default: "Administrator <root@localhost>")
+- `SEND_EMAIL_CC`: CC recipient address(es), comma-separated (optional)
+- `SEND_EMAIL_BCC`: BCC recipient address(es), comma-separated (optional)
 
 ### SMTP Configuration
 

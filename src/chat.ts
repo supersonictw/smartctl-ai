@@ -8,6 +8,24 @@ const aiBaseUrl = process.env.OPENAI_BASE_URL ||
 const aiApiKey = process.env.OPENAI_API_KEY ||
     "gemini zr3Pjc68z4bOtw==";
 
+function parseModelParams(raw?: string): Record<string, unknown> {
+    if (!raw || !raw.trim()) {
+        return {};
+    }
+    let parsed: unknown;
+    try {
+        parsed = JSON.parse(raw);
+    } catch (error) {
+        throw new Error(`Invalid CHAT_MODEL_PARAMS JSON: ${(error as Error).message}`);
+    }
+    if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+        throw new Error("CHAT_MODEL_PARAMS must be a JSON object.");
+    }
+    return parsed as Record<string, unknown>;
+}
+
+const chatModelParams = parseModelParams(process.env.CHAT_MODEL_PARAMS);
+
 export interface ChatMessage {
     role: string;
     content: string;
@@ -56,6 +74,7 @@ export interface ChatCompletionsParams {
     frequency_penalty?: number;
     logit_bias?: { [key: string]: number };
     user?: string;
+    [key: string]: unknown;
 }
 
 /**
@@ -65,13 +84,17 @@ export interface ChatCompletionsParams {
  */
 export async function createChatCompletions(params: ChatCompletionsParams): Promise<ChatCompletionResponse> {
     const requestUrl = `${aiBaseUrl}/chat/completions`;
+    const body = {
+        ...chatModelParams,
+        ...params,
+    };
     const response = await fetch(requestUrl, {
         method: "POST",
         headers: {
             "content-type": "application/json",
             "authorization": `Bearer ${aiApiKey}`,
         },
-        body: JSON.stringify(params),
+        body: JSON.stringify(body),
     });
     return await response.json();
 }

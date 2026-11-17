@@ -26,7 +26,7 @@ import {
 } from "./src/prompts.ts";
 
 import {
-    transport,
+    sendMail,
 } from "./src/mailer.ts";
 
 // Load configuration from environment variables or use default values
@@ -123,9 +123,7 @@ console.info(replyMessages.join("\n"));
 if (isSendEmail) {
     // Send notification email
     try {
-        await transport.sendMail({
-            from: process.env.SEND_EMAIL_FROM || "SMARTctl-AI <noreply-smartctl-ai@localhost>",
-            to: process.env.SEND_EMAIL_TO || "Administrator <root@localhost>",
+        await sendMail({
             subject: `SMARTctl-AI - SMART Inspection Report for ${hostnameStr}`,
             text: replyMessages.join("\n") || "No inspection reports available.",
         });

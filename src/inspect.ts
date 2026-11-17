@@ -34,10 +34,13 @@ export const inspect = async (params: InspectParams): Promise<InspectResult> => 
     const smartctlOutput = smartctlResult.toString();
     const snippets = sliceContent(smartctlOutput, 2000, "\n");
 
-    const chatHistory = snippets.map((snippet) => ({
-        role: "user",
-        content: snippet,
-    })).concat([params.systemMessage]);
+    const chatHistory: ChatMessage[] = [
+        params.systemMessage,
+        ...snippets.map((snippet) => ({
+            role: "user",
+            content: snippet,
+        })),
+    ];
 
     const reply = await chatWithAI(
         chatHistory,
